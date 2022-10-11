@@ -21,7 +21,7 @@ class Preprocessor:
         return re.sub(r"[^A-Za-z0-9]+", " ", text)
     
     def remove_excess_space(self, text):
-        return re.sub(' +', ' ', text)
+        return re.sub(r" +", " ", text)
 
     def get_doc_id(self, doc):
         """ Splits each line of the document, into doc_id & text.

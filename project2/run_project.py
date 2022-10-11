@@ -197,10 +197,10 @@ class ProjectRunner:
                 4. Get the DAAT AND query results & number of comparisons with & without skip pointers, 
                     along with sorting by tf-idf scores."""
 
-            input_term_arr = list(self.indexer.pp.tokenizer(query).keys())
+            input_term_arr, term_dict = self.indexer.pp.tokenizer(query)
             # print(input_term_arr)
 
-            for term in input_term_arr:
+            for term, term_dict in input_term_arr:
                 postings, skip_postings = None, None
                 if term in self.indexer.inverted_index:
                     postings = self.indexer.inverted_index[term].traverse_list()
@@ -220,7 +220,7 @@ class ProjectRunner:
             # print(f"{query.strip()}: {and_op_no_skip_sorted_tfidf}")
             and_op_no_skip_sorted = [x[0] for x in sorted(traversal, key = lambda x: x[1])]
             # and with skip
-            ll_with_skip, and_comparisons_skip = self._daat_and([self.indexer.inverted_index[x] for x in input_term_arr], with_skip=True)
+            ll_with_skip, and_comparisons_skip = self._daat_and([self.indexer.inverted_index[t] for t in input_term_arr], with_skip=True)
             traversal = ll_with_skip.traverse_list_tfidf()
             and_op_skip = [x[0] for x in traversal]
             # and with skip sorted
