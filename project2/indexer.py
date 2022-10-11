@@ -4,7 +4,7 @@ Institute: University at Buffalo
 '''
 
 from linkedlist import LinkedList
-from collections import OrderedDict, Counter
+from collections import OrderedDict
 from preprocessor import Preprocessor
 
 
@@ -23,11 +23,9 @@ class Indexer:
         """ This function adds each tokenized document to the index. This in turn uses the function add_to_index
             Already implemented."""
         # tokenized_document = self.pp.tokenizer(text)
-        # token_count = len(tokenized_document)
-        # # token_count = sum(list(tokenized_document.values()))
-        # tokenized_document = Counter(tokenized_document)
+        token_count = sum(list(tokenized_document.values()))
         for t, tf in tokenized_document.items():
-            self.add_to_index(t, tf, doc_id)
+            self.add_to_index(t, float(tf)/float(token_count), doc_id)
 
     def add_to_index(self, term, tf, doc_id_):
         """ This function adds each term & document id to the index.
