@@ -99,7 +99,7 @@ class ProjectRunner:
                             num_comp += 1
                     else:
                         l2_pointer = l2_pointer.next
-                    num_comp += 1
+                        num_comp += 1
                 else:
                     if l1_pointer.skip!= None and l1_pointer.skip.value<l2_pointer.value:
                         while l1_pointer.skip!= None and l1_pointer.skip.value<l2_pointer.value:
@@ -107,7 +107,7 @@ class ProjectRunner:
                             num_comp += 1
                     else:
                         l1_pointer = l1_pointer.next
-                    num_comp += 1
+                        num_comp += 1
 
                 # num_comp += 1
 
