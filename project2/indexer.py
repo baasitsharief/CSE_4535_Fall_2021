@@ -23,16 +23,15 @@ class Indexer:
         """ This function adds each tokenized document to the index. This in turn uses the function add_to_index
             Already implemented."""
         # tokenized_document = self.pp.tokenizer(text)
-        for t in tokenized_document.items():
-            self.add_to_index(t, doc_id)
+        token_count = sum(list(tokenized_document.values()))
+        for t, tf in tokenized_document.items():
+            self.add_to_index(t, float(tf/token_count), doc_id)
 
-    def add_to_index(self, term_, doc_id_):
+    def add_to_index(self, term, tf, doc_id_):
         """ This function adds each term & document id to the index.
             If a term is not present in the index, then add the term to the index & initialize a new postings list (linked list).
             If a term is present, then add the document to the appropriate position in the posstings list of the term.
             To be implemented."""
-        term = term_[0]
-        tf = term_[1]
         if term not in self.inverted_index:
             ll=LinkedList()
             ll.insert_at_end(doc_id_, tf)
@@ -60,7 +59,8 @@ class Indexer:
     def calculate_tf_idf(self, num_docs):
         """ Calculate tf-idf score for each document in the postings lists of the index.
             To be implemented."""
-        for t, ll in self.inverted_index.items():
+        for t in self.inverted_index.keys():
+            ll = self.inverted_index[t]
             ll.calculate_idf(num_docs)
             ll.calculate_tfidf()
             self.inverted_index[t] = ll
