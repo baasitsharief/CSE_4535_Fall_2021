@@ -7,7 +7,7 @@ from tqdm import tqdm
 from preprocessor import Preprocessor
 from indexer import Indexer
 from collections import OrderedDict
-from linkedlist import LinkedList
+from linkedlist import LinkedList, Node
 import inspect as inspector
 import sys
 import argparse
@@ -18,33 +18,99 @@ import flask
 from flask import Flask
 from flask import request
 import hashlib
+from copy import deepcopy
 
 app = Flask(__name__)
 
 
 class ProjectRunner:
     def __init__(self):
-        self.preprocessor = Preprocessor()
         self.indexer = Indexer()
+        self.num_docs = 0
 
-    def _merge(self):
+    def _merge(self, l1, l2, with_skip = False):
         """ Implement the merge algorithm to merge 2 postings list at a time.
             Use appropriate parameters & return types.
             While merging 2 postings list, preserve the maximum tf-idf value of a document.
             To be implemented."""
-        raise NotImplementedError
+        if l1.length == 0:
+            return deepcopy(l2), 0
+        if l2.length == 0:
+            return deepcopy(l1), 0
+        if l1.length > l2.length:
+            l1, l2 = l2, l1
+        l1_pointer = l1.start_node
+        l2_pointer = l2.start_node
+        merged = LinkedList()
+        if l1.start_node>l2.end_node or l2.start_node>l1.end_node:
+            return merged, 0
+         
+        num_comp = 0
 
-    def _daat_and(self):
+        if with_skip == False:
+            while l1_pointer:
+                if l1_pointer.value == l2_pointer.value:
+                    doc_id = l1_pointer.value
+                    tfidf = max(l1_pointer.tfidf, l2_pointer.tfidf)
+                    merged.insert_at_end(value=doc_id, tfidf=tfidf)
+                    l1_pointer = l1_pointer.next
+                    l2_pointer = l2_pointer.next
+                elif l1_pointer.value > l2_pointer.value:
+                    l2_pointer = l2_pointer.next
+                else:
+                    l1_pointer = l1_pointer.next
+                num_comp += 1
+        else:
+            while l1_pointer and l2_pointer:
+                if l1_pointer.value == l2_pointer.value:
+                    doc_id = l1_pointer.value
+                    tfidf = max(l1_pointer.tfidf, l2_pointer.tfidf)
+                    merged.insert_at_end(value=doc_id, tfidf=tfidf)
+                    l1_pointer = l1_pointer.next
+                    l2_pointer = l2_pointer.next
+                elif l1_pointer.value > l2_pointer.value:
+                    if l2_pointer.skip!= None:
+                        if l2_pointer.skip.value<l1_pointer.value:
+                            l2_pointer = l2_pointer.skip
+                        num_comp += 1
+                    else:
+                        l2_pointer = l2_pointer.next
+                else:
+                    if l1_pointer.skip!= None:
+                        if l1_pointer.skip.value<l2_pointer.value:
+                            l1_pointer = l1_pointer.skip
+                        num_comp += 1
+                    else:
+                        l1_pointer = l1_pointer.next
+                num_comp += 1
+
+        return merged, num_comp
+
+
+
+    def _daat_and(self, posting_lists, with_skip = False):
         """ Implement the DAAT AND algorithm, which merges the postings list of N query terms.
             Use appropriate parameters & return types.
             To be implemented."""
-        raise NotImplementedError
+        posting_lists = sorted(posting_lists, key = lambda x: x.length)
+        if len(posting_lists)==1:
+            merged = deepcopy(posting_lists[0])
+            return merged, 0
+        if len(posting_lists)==2:
+            return self._merge(posting_lists[0], posting_lists[1], with_skip=with_skip)
+        merged, num_comps = self._merge(posting_lists[0], posting_lists[1], with_skip=with_skip)
+        for i in range(2, len(posting_lists)):
+            merged, comps = self._merge(merged, posting_lists[i], with_skip=with_skip)
+            num_comps += comps
+        
+        return merged, num_comps
 
-    def _get_postings(self):
+
+    def _get_postings(self, term):
         """ Function to get the postings list of a term from the index.
             Use appropriate parameters & return types.
             To be implemented."""
-        raise NotImplementedError
+        return self.indexer.inverted_index[term]
 
     def _output_formatter(self, op):
         """ This formats the result in the required format.
@@ -60,13 +126,15 @@ class ProjectRunner:
             it sorts the index by the terms, add skip pointers, and calculates the tf-idf scores.
             Already implemented, but you can modify the orchestration, as you seem fit."""
         with open(corpus, 'r') as fp:
-            for line in tqdm(fp.readlines()):
-                doc_id, document = self.preprocessor.get_doc_id(line)
-                tokenized_document = self.preprocessor.tokenizer(document)
+            reader=fp.readlines()
+            self.num_docs = len(list(reader))
+            for line in tqdm(reader):
+                doc_id, document = self.indexer.pp.get_doc_id(line)
+                tokenized_document = self.indexer.pp.tokenizer(document)
                 self.indexer.generate_inverted_index(doc_id, tokenized_document)
         self.indexer.sort_terms()
         self.indexer.add_skip_connections()
-        self.indexer.calculate_tf_idf()
+        self.indexer.calculate_tf_idf(self.num_docs)
 
     def sanity_checker(self, command):
         """ DO NOT MODIFY THIS. THIS IS USED BY THE GRADER. """
@@ -99,26 +167,34 @@ class ProjectRunner:
                 3. Get the DAAT AND query results & number of comparisons with & without skip pointers.
                 4. Get the DAAT AND query results & number of comparisons with & without skip pointers, 
                     along with sorting by tf-idf scores."""
-            raise NotImplementedError
 
-            input_term_arr = []  # Tokenized query. To be implemented.
+            input_term_arr = self.indexer.pp.tokenizer(query)
 
             for term in input_term_arr:
                 postings, skip_postings = None, None
-
-                """ Implement logic to populate initialize the above variables.
-                    The below code formats your result to the required format.
-                    To be implemented."""
-
+                if term in self.indexer.inverted_index:
+                    postings = self.indexer.inverted_index[term].traverse_list()
+                    skip_postings = self.indexer.inverted_index[term].traverse_skips()
                 output_dict['postingsList'][term] = postings
                 output_dict['postingsListSkip'][term] = skip_postings
 
             and_op_no_skip, and_op_skip, and_op_no_skip_sorted, and_op_skip_sorted = None, None, None, None
             and_comparisons_no_skip, and_comparisons_skip, \
                 and_comparisons_no_skip_sorted, and_comparisons_skip_sorted = None, None, None, None
-            """ Implement logic to populate initialize the above variables.
-                The below code formats your result to the required format.
-                To be implemented."""
+            # and without skip
+            ll_without_skip, and_comparisons_no_skip = self._daat_and([self.indexer.inverted_index[x] for x in input_term_arr], with_skip=False)
+            traversal = ll_without_skip.traverse_list_tfidf()
+            and_op_no_skip = [x[0] for x in traversal]
+            # and without skip sorted
+            and_op_no_skip_sorted = [x[0] for x in sorted(traversal, key = lambda x: x[1])]
+            # and with skip
+            ll_with_skip, and_comparisons_skip = self._daat_and([self.indexer.inverted_index[x] for x in input_term_arr], with_skip=True)
+            traversal = ll_with_skip.traverse_list_tfidf()
+            and_op_skip = [x[0] for x in traversal]
+            # and with skip sorted
+            and_op_skip_sorted = [x[0] for x in sorted(traversal, key = lambda x: x[1])]
+
+            
             and_op_no_score_no_skip, and_results_cnt_no_skip = self._output_formatter(and_op_no_skip)
             and_op_no_score_skip, and_results_cnt_skip = self._output_formatter(and_op_skip)
             and_op_no_score_no_skip_sorted, and_results_cnt_no_skip_sorted = self._output_formatter(and_op_no_skip_sorted)
@@ -137,12 +213,12 @@ class ProjectRunner:
             output_dict['daatAndTfIdf'][query.strip()] = {}
             output_dict['daatAndTfIdf'][query.strip()]['results'] = and_op_no_score_no_skip_sorted
             output_dict['daatAndTfIdf'][query.strip()]['num_docs'] = and_results_cnt_no_skip_sorted
-            output_dict['daatAndTfIdf'][query.strip()]['num_comparisons'] = and_comparisons_no_skip_sorted
+            output_dict['daatAndTfIdf'][query.strip()]['num_comparisons'] = and_comparisons_no_skip
 
             output_dict['daatAndSkipTfIdf'][query.strip()] = {}
             output_dict['daatAndSkipTfIdf'][query.strip()]['results'] = and_op_no_score_skip_sorted
             output_dict['daatAndSkipTfIdf'][query.strip()]['num_docs'] = and_results_cnt_skip_sorted
-            output_dict['daatAndSkipTfIdf'][query.strip()]['num_comparisons'] = and_comparisons_skip_sorted
+            output_dict['daatAndSkipTfIdf'][query.strip()]['num_comparisons'] = and_comparisons_skip
 
         return output_dict
 
@@ -155,7 +231,9 @@ def execute_query():
 
     queries = request.json["queries"]
     random_command = request.json["random_command"]
-
+    
+    corpus = './data/input_corpus.txt'
+    output_location = './data/output.json'
     """ Running the queries against the pre-loaded index. """
     output_dict = runner.run_queries(queries, random_command)
 
