@@ -18,7 +18,13 @@ class Preprocessor:
         self.ps = PorterStemmer()
     
     def filter_special_characters(self, text):
-        return re.sub(r"[^a-zA-Z0-9 ]", " ", text)
+        for i, ch in enumerate(text):
+            if not (ch.isalnum() or ch == " "):
+                text = text[:i]+" "+text[i+1:]
+        return text
+    
+    def remove_excess_space(self, text):
+        return re.sub(' +', ' ', text)
 
     def get_doc_id(self, doc):
         """ Splits each line of the document, into doc_id & text.
@@ -27,11 +33,17 @@ class Preprocessor:
         return int(arr[0]), arr[1]
 
     def tokenizer(self, text):
+        text = text.lower()
         text = self.filter_special_characters(text)
-        text = text.split()
-        text = [x.lower() for x in text]
-        tokens = [self.ps.stem(w) for w in text]
+        # print(text)
+        text = self.remove_excess_space(text)
+        # print(text)
+        tokens = text.split()
+        # print(tokens)
         tokens = list(filter(lambda x: x not in self.stop_words, tokens))
+        # print(tokens)
+        tokens = [self.ps.stem(w) for w in tokens]
+        # print(tokens)
         count = len(tokens)
         tf_dict = dict()
         for token in tokens:
