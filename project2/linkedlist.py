@@ -77,22 +77,23 @@ class LinkedList:
         return traversal
 
     def add_skip_connections(self):
-        if self.length <=2:
-          return
+        # if self.length <=2:
+        #   return
         
-        if self.length <=4:
-            n_skips = 2
-        else:
-            n_skips = math.floor(math.sqrt(self.length))
+        # if self.length <=4:
+        #     n_skips = 2
+        # else:
+        n_skips = math.floor(math.sqrt(self.length))
+        self.skip_length = round(math.sqrt(self.length))
 
-            if n_skips * n_skips == self.length:
-                n_skips = n_skips - 1
+        if n_skips * n_skips == self.length:
+            n_skips = n_skips - 1
         i = 0
         head = self.start_node
         prev = self.start_node
         skip_count = 0
         while head:
-            if i%n_skips==0 and i!=0:
+            if i%self.skip_length==0 and i!=0:
                 prev.skip = head
                 prev = head
                 # prev.skip = None
@@ -101,7 +102,7 @@ class LinkedList:
             # print(f"{i}-th skip {head.value}, {head.skip}")
             head = head.next
             i+=1
-        self.skip_length = n_skips
+        # self.skip_length = n_skips
         self.n_skips = n_skips
 
     def insert_at_end(self, value, tf = 0, tfidf = 0):

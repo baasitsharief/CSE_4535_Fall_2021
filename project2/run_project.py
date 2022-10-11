@@ -91,25 +91,25 @@ class ProjectRunner:
                     merged.insert_at_end(value=doc_id, tfidf=tfidf)
                     l1_pointer = l1_pointer.next
                     l2_pointer = l2_pointer.next
+                    num_comp += 1
                 elif l1_pointer.value > l2_pointer.value:
-                    if l2_pointer.skip!= None:
-                        if l2_pointer.skip.value<l1_pointer.value:
+                    if l2_pointer.skip!= None and l2_pointer.skip.value<l1_pointer.value:
+                        while l2_pointer.skip!= None and l2_pointer.skip.value<l1_pointer.value:
                             l2_pointer = l2_pointer.skip
-                        else:
-                            l2_pointer = l2_pointer.next
-                        # num_comp += 1
+                            num_comp += 1
                     else:
                         l2_pointer = l2_pointer.next
+                    num_comp += 1
                 else:
-                    if l1_pointer.skip!= None:
-                        if l1_pointer.skip.value<l2_pointer.value:
+                    if l1_pointer.skip!= None and l1_pointer.skip.value<l2_pointer.value:
+                        while l1_pointer.skip!= None and l1_pointer.skip.value<l2_pointer.value:
                             l1_pointer = l1_pointer.skip
-                        else:
-                            l1_pointer = l1_pointer.next
-                        # num_comp += 1
+                            num_comp += 1
                     else:
                         l1_pointer = l1_pointer.next
-                num_comp += 1
+                    num_comp += 1
+
+                # num_comp += 1
 
         return merged, num_comp
 
@@ -198,7 +198,7 @@ class ProjectRunner:
                     along with sorting by tf-idf scores."""
 
             input_term_arr = list(self.indexer.pp.tokenizer(query).keys())
-            print(input_term_arr)
+            # print(input_term_arr)
 
             for term in input_term_arr:
                 postings, skip_postings = None, None
@@ -216,13 +216,13 @@ class ProjectRunner:
             traversal = ll_without_skip.traverse_list_tfidf()
             and_op_no_skip = [x[0] for x in traversal]
             # and without skip sorted
-            and_op_no_skip_sorted = [x[0] for x in sorted(traversal, key = lambda x: x[1])]
+            and_op_no_skip_sorted = [x[0] for x in reversed(sorted(traversal, key = lambda x: x[1]))]
             # and with skip
             ll_with_skip, and_comparisons_skip = self._daat_and([self.indexer.inverted_index[x] for x in input_term_arr], with_skip=True)
             traversal = ll_with_skip.traverse_list_tfidf()
             and_op_skip = [x[0] for x in traversal]
             # and with skip sorted
-            and_op_skip_sorted = [x[0] for x in sorted(traversal, key = lambda x: x[1])]
+            and_op_skip_sorted = [x[0] for x in reversed(sorted(traversal, key = lambda x: x[1]))]
 
             
             and_op_no_score_no_skip, and_results_cnt_no_skip = self._output_formatter(and_op_no_skip)
