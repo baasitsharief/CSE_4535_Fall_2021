@@ -157,7 +157,7 @@ class ProjectRunner:
             self.num_docs = len(list(reader))
             for line in tqdm(reader):
                 doc_id, document = self.indexer.pp.get_doc_id(line)
-                tokenized_document = self.indexer.pp.tokenizer(document)
+                _, tokenized_document = self.indexer.pp.tokenizer(document)
                 self.indexer.generate_inverted_index(doc_id, tokenized_document)
         self.indexer.sort_terms()
         self.indexer.add_skip_connections()
@@ -197,10 +197,10 @@ class ProjectRunner:
                 4. Get the DAAT AND query results & number of comparisons with & without skip pointers, 
                     along with sorting by tf-idf scores."""
 
-            input_term_arr, term_dict = self.indexer.pp.tokenizer(query)
+            input_term_arr, _ = self.indexer.pp.tokenizer(query)
             # print(input_term_arr)
 
-            for term, term_dict in input_term_arr:
+            for term in input_term_arr:
                 postings, skip_postings = None, None
                 if term in self.indexer.inverted_index:
                     postings = self.indexer.inverted_index[term].traverse_list()

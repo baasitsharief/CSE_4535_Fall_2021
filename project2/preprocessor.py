@@ -51,4 +51,4 @@ class Preprocessor:
                 tf_dict[token] = 1
         for k, v in sorted(tf_dict.items()):
             tf_dict[k] = float(v/count)
-        return tf_dict
+        return tokens, tf_dict
