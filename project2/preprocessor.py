@@ -18,7 +18,7 @@ class Preprocessor:
         self.ps = PorterStemmer()
     
     def filter_special_characters(self, text):
-        return re.sub(r"[^A-Za-z0-9]+", text)
+        return re.sub(r"[^A-Za-z0-9]+", " ", text)
     
     def remove_excess_space(self, text):
         return re.sub(' +', ' ', text)
