@@ -175,7 +175,7 @@ class ProjectRunner:
                 "node_mem": str(index[kw].start_node),
                 "node_type": str(type(index[kw].start_node)),
                 "node_value": str(index[kw].start_node.value),
-                "command_result": eval(command) if "." in command else ""
+                "command_result": eval(command) if "." in command else "",
                 }
 
     def run_queries(self, query_list, random_command):
@@ -266,8 +266,6 @@ def execute_query():
     queries = request.json["queries"]
     random_command = request.json["random_command"]
     
-    corpus = './data/input_corpus.txt'
-    output_location = './data/output.json'
     """ Running the queries against the pre-loaded index. """
     output_dict = runner.run_queries(queries, random_command)
 
@@ -287,7 +285,7 @@ if __name__ == "__main__":
     """ Driver code for the project, which defines the global variables.
         Do NOT change it."""
 
-    output_location = "project2_output.json"
+    output_location = "./project2_output.json"
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("--corpus", type=str, help="Corpus File name, with path.")
     parser.add_argument("--output_location", type=str, help="Output file name.", default=output_location)

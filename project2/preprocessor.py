@@ -34,10 +34,10 @@ class Preprocessor:
 
     def tokenizer(self, text):
         text = text.lower()
+        text = text.strip()
         text = self.filter_special_characters(text)
         # print(text)
         text = self.remove_excess_space(text)
-        text = text.strip()
         # print(text)
         tokens = text.split()
         # print(tokens)
@@ -52,6 +52,6 @@ class Preprocessor:
                 tf_dict[token] += 1
             else:
                 tf_dict[token] = 1
-        for k, v in tf_dict.items():
-            tf_dict[k] = float(v)/count
+        for k, v in sorted(tf_dict.items()):
+            tf_dict[k] = float(v/count)
         return tf_dict

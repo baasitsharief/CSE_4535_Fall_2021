@@ -140,10 +140,10 @@ class LinkedList:
         # self.idf = self.length/self.num_docs
     
     def calculate_idf(self, num_docs):
-        self.idf =  float(num_docs/self.length)
+        self.idf =  num_docs/self.length
 
     def calculate_tfidf(self):
         head = self.start_node
         while head:
-            head.tfidf = float(head.tf)*self.idf
+            head.tfidf = head.tf*self.idf
             head = head.next
