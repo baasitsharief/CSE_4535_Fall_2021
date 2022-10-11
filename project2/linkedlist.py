@@ -121,6 +121,7 @@ class LinkedList:
             # self.add_skip_connections()
             self.length += 1
             return
+        
         if value>self.end_node.value:
             self.end_node.next = node
             self.end_node = node
