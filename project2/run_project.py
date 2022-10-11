@@ -218,7 +218,7 @@ class ProjectRunner:
             # and without skip sorted
             # and_op_no_skip_sorted_tfidf = list(sorted(traversal, key = lambda x: -1*x[1]))
             # print(f"{query.strip()}: {and_op_no_skip_sorted_tfidf}")
-            and_op_no_skip_sorted = [x[0] for x in sorted(traversal, key = lambda x: x[1])]
+            and_op_no_skip_sorted = [x[0] for x in sorted(traversal, key = lambda x: -1*x[1])]
             # and with skip
             ll_with_skip, and_comparisons_skip = self._daat_and([self.indexer.inverted_index[t] for t in input_term_arr], with_skip=True)
             traversal = ll_with_skip.traverse_list_tfidf()
@@ -226,7 +226,7 @@ class ProjectRunner:
             # and with skip sorted
             # and_op_skip_sorted_tfidf = list(sorted(traversal, key = lambda x: -1*x[1]))
             # print(f"{query.strip()}: {and_op_skip_sorted_tfidf}")
-            and_op_skip_sorted = [x[0] for x in sorted(traversal, key = lambda x: x[1])]
+            and_op_skip_sorted = [x[0] for x in sorted(traversal, key = lambda x: -1*x[1])]
 
             
             and_op_no_score_no_skip, and_results_cnt_no_skip = self._output_formatter(and_op_no_skip)
