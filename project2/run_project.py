@@ -23,6 +23,26 @@ from copy import deepcopy
 app = Flask(__name__)
 
 
+from tqdm import tqdm
+# from preprocessor import Preprocessor
+# from indexer import Indexer
+from collections import OrderedDict
+# from linkedlist import LinkedList, Node
+import inspect as inspector
+import sys
+import argparse
+import json
+import time
+import random
+import flask
+from flask import Flask
+from flask import request
+import hashlib
+from copy import deepcopy
+
+app = Flask(__name__)
+
+
 class ProjectRunner:
     def __init__(self):
         self.indexer = Indexer()
@@ -39,19 +59,21 @@ class ProjectRunner:
             return deepcopy(l1), 0
         if l1.length > l2.length:
             l1, l2 = l2, l1
+        merged = LinkedList()
+        if l1.start_node.value>l2.end_node.value or l2.start_node.value>l1.end_node.value:
+            return merged, 0
+
         l1_pointer = l1.start_node
         l2_pointer = l2.start_node
-        merged = LinkedList()
-        if l1.start_node>l2.end_node or l2.start_node>l1.end_node:
-            return merged, 0
          
         num_comp = 0
 
         if with_skip == False:
-            while l1_pointer:
+            while l1_pointer and l2_pointer:
                 if l1_pointer.value == l2_pointer.value:
                     doc_id = l1_pointer.value
                     tfidf = max(l1_pointer.tfidf, l2_pointer.tfidf)
+                    # print(doc_id, tfidf)
                     merged.insert_at_end(value=doc_id, tfidf=tfidf)
                     l1_pointer = l1_pointer.next
                     l2_pointer = l2_pointer.next
@@ -65,6 +87,7 @@ class ProjectRunner:
                 if l1_pointer.value == l2_pointer.value:
                     doc_id = l1_pointer.value
                     tfidf = max(l1_pointer.tfidf, l2_pointer.tfidf)
+                    # print(doc_id, tfidf)
                     merged.insert_at_end(value=doc_id, tfidf=tfidf)
                     l1_pointer = l1_pointer.next
                     l2_pointer = l2_pointer.next
@@ -72,14 +95,18 @@ class ProjectRunner:
                     if l2_pointer.skip!= None:
                         if l2_pointer.skip.value<l1_pointer.value:
                             l2_pointer = l2_pointer.skip
-                        num_comp += 1
+                        else:
+                            l2_pointer = l2_pointer.next
+                        # num_comp += 1
                     else:
                         l2_pointer = l2_pointer.next
                 else:
                     if l1_pointer.skip!= None:
                         if l1_pointer.skip.value<l2_pointer.value:
                             l1_pointer = l1_pointer.skip
-                        num_comp += 1
+                        else:
+                            l1_pointer = l1_pointer.next
+                        # num_comp += 1
                     else:
                         l1_pointer = l1_pointer.next
                 num_comp += 1
@@ -148,7 +175,8 @@ class ProjectRunner:
                 "node_mem": str(index[kw].start_node),
                 "node_type": str(type(index[kw].start_node)),
                 "node_value": str(index[kw].start_node.value),
-                "command_result": eval(command) if "." in command else ""}
+                "command_result": eval(command) if "." in command else ""
+                }
 
     def run_queries(self, query_list, random_command):
         """ DO NOT CHANGE THE output_dict definition"""
@@ -158,7 +186,8 @@ class ProjectRunner:
                        'daatAndSkip': {},
                        'daatAndTfIdf': {},
                        'daatAndSkipTfIdf': {},
-                       'sanity': self.sanity_checker(random_command)}
+                       'sanity': self.sanity_checker(random_command)
+                       }
 
         for query in tqdm(query_list):
             """ Run each query against the index. You should do the following for each query:
@@ -168,7 +197,8 @@ class ProjectRunner:
                 4. Get the DAAT AND query results & number of comparisons with & without skip pointers, 
                     along with sorting by tf-idf scores."""
 
-            input_term_arr = self.indexer.pp.tokenizer(query)
+            input_term_arr = list(self.indexer.pp.tokenizer(query).keys())
+            print(input_term_arr)
 
             for term in input_term_arr:
                 postings, skip_postings = None, None
@@ -182,7 +212,7 @@ class ProjectRunner:
             and_comparisons_no_skip, and_comparisons_skip, \
                 and_comparisons_no_skip_sorted, and_comparisons_skip_sorted = None, None, None, None
             # and without skip
-            ll_without_skip, and_comparisons_no_skip = self._daat_and([self.indexer.inverted_index[x] for x in input_term_arr], with_skip=False)
+            ll_without_skip, and_comparisons_no_skip = self._daat_and([self.indexer.inverted_index[t] for t in input_term_arr], with_skip=False)
             traversal = ll_without_skip.traverse_list_tfidf()
             and_op_no_skip = [x[0] for x in traversal]
             # and without skip sorted
