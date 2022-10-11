@@ -24,6 +24,7 @@ class Indexer:
             Already implemented."""
         # tokenized_document = self.pp.tokenizer(text)
         token_count = sum(list(tokenized_document.values()))
+        print(token_count)
         for t, tf in tokenized_document.items():
             self.add_to_index(t, float(tf)/float(token_count), doc_id)
 
