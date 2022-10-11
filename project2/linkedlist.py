@@ -141,7 +141,7 @@ class LinkedList:
         # self.idf = self.length/self.num_docs
     
     def calculate_idf(self, num_docs):
-        self.idf =  float(self.length/num_docs)
+        self.idf =  float(num_docs/self.length)
 
     def calculate_tfidf(self):
         if self.idf != 0.0:
