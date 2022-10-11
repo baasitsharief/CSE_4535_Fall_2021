@@ -42,4 +42,6 @@ class Preprocessor:
                 tf_dict[token] += 1
             else:
                 tf_dict[token] = 1
+        for k, v in tf_dict:
+            tf_dict[k] = float(v)/count
         return tf_dict
