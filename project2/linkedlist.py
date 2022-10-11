@@ -143,8 +143,7 @@ class LinkedList:
         self.idf =  float(num_docs/self.length)
 
     def calculate_tfidf(self):
-        if self.idf != 0.0:
-            head = self.start_node
-            while head:
-                head.tfidf = float(head.tf)*self.idf
-                head = head.next
+        head = self.start_node
+        while head:
+            head.tfidf = float(head.tf)*self.idf
+            head = head.next
