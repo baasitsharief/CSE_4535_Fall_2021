@@ -147,5 +147,5 @@ class LinkedList:
         if self.idf != 0.0:
             head = self.start_node
             while head:
-                head.tfidf = float(head.tf*self.idf)
+                head.tfidf = float(head.tf)*self.idf
                 head = head.next
