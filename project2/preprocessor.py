@@ -37,6 +37,7 @@ class Preprocessor:
         text = self.filter_special_characters(text)
         # print(text)
         text = self.remove_excess_space(text)
+        text = text.strip()
         # print(text)
         tokens = text.split()
         # print(tokens)
