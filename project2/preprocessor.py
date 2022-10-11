@@ -18,10 +18,7 @@ class Preprocessor:
         self.ps = PorterStemmer()
     
     def filter_special_characters(self, text):
-        for i, ch in enumerate(text):
-            if not (ch.isalnum() or ch == " "):
-                text = text[:i]+" "+text[i+1:]
-        return text
+        return re.sub(r"[^a-zA-Z0-9 ]", " ", text)
 
     def get_doc_id(self, doc):
         """ Splits each line of the document, into doc_id & text.
