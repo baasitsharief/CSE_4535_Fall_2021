@@ -34,7 +34,7 @@ class Preprocessor:
         text = text.split()
         text = [x.lower() for x in text]
         tokens = [self.ps.stem(w) for w in text]
-        tokens = list(filter(lambda x: x not in self.stop_words))
+        tokens = list(filter(lambda x: x not in self.stop_words, tokens))
         count = len(tokens)
         tf_dict = dict()
         for token in tokens:
