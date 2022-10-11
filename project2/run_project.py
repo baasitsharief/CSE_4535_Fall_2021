@@ -54,9 +54,9 @@ class ProjectRunner:
             While merging 2 postings list, preserve the maximum tf-idf value of a document.
             To be implemented."""
         if l1.length == 0:
-            return deepcopy(l2), 0
+            return None, 0
         if l2.length == 0:
-            return deepcopy(l1), 0
+            return None, 0
         if l1.length > l2.length:
             l1, l2 = l2, l1
         merged = LinkedList()
