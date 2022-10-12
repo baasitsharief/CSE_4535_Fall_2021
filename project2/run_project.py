@@ -24,10 +24,10 @@ app = Flask(__name__)
 
 
 from tqdm import tqdm
-# from preprocessor import Preprocessor
-# from indexer import Indexer
+from preprocessor import Preprocessor
+from indexer import Indexer
 from collections import OrderedDict
-# from linkedlist import LinkedList, Node
+from linkedlist import LinkedList, Node
 import inspect as inspector
 import sys
 import argparse
